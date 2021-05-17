@@ -1,41 +1,18 @@
-# build .dll files for docfx to inspect
-FROM mcr.microsoft.com/dotnet/sdk:5.0.102-alpine3.12-amd64 AS code-env
+#
 
-WORKDIR /app
-
+# docfx-build
+FROM tsgkadot/docker-docfx:latest as docfx-build
+WORKDIR /app 
 COPY . .
-
-RUN dotnet publish -o ./.build .
-
-
-# build docs with docfx using mono
-FROM mono as docs-env
-
-RUN apt update && apt install -y unzip wget
-
-WORKDIR /tools
-
-RUN wget https://github.com/dotnet/docfx/releases/download/v2.56.7/docfx.zip
-
-RUN unzip docfx.zip -d ./docfx
-
-WORKDIR /build
-
-COPY --from=code-env /app/.build .build
-
-COPY . .
-
-RUN mono /tools/docfx/docfx.exe build docfx_project/docfx.json
+RUN docfx docfx_project/docfx.json --serve
 
 
+# nginx
+FROM nginx:latest
+WORKDIR /usr/share/nginx/html
+COPY --from=docfx-build app/docfx_project/_site .
 
-# # deploy using nginx for static file hosting
-# FROM nginx:latest
+COPY ./nginx/.htpasswd /etc/nginx/
+COPY ./nginx/default.conf /etc/nginx/conf.d/
 
-# WORKDIR /var/www/html
 
-# COPY --from=docs-env /build/docfx_project/_site .
-
-# WORKDIR /etc/nginx/conf.d
-
-# COPY ./docfx_project/default.conf default.conf
