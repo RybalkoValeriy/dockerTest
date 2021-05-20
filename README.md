@@ -1,3 +1,4 @@
+Last commit:
 <br>
-<img https://github.com/RybalkoValeriy/dockerTest/actions/workflows/badge.svg>
-</br>
+<img src="https://github.com/RybalkoValeriy/dockerTest/actions/workflows/Shell%20Commands/badge.svg?branch=main">
+<br>
